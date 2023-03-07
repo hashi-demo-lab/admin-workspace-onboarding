@@ -42,6 +42,18 @@ variable "workspace_vcs_directory" {
   default     = "root_directory"
 }
 
+variable "branch" {
+  description = "(Optional) - VCS Repo branch"
+  default     = null
+  type        = string
+}
+
+variable "tags_regex" {
+  description = "(Optional) -  regex git tags"
+  default     = null
+  type        = string
+}
+
 # Variables
 variable "variables" {
   description = "Map of all variables for workspace"

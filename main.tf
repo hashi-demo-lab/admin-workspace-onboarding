@@ -25,7 +25,11 @@ module "workpace" {
   #VCS
   vcs_repo                = try(each.value.vcs_repo, {})
   workspace_vcs_directory = try(each.value.workspace_vcs_directory, "root_directory")
+  branch                  = try(each.value.branch, null)
   workspace_auto_apply    = try(each.value.workspace_auto_apply, false)
+  tags_regex              = try(each.value.tags_regex, null)
+  file_triggers_enabled   = try(each.value.file_triggers_enabled, null)
+
 
   #Agents
   workspace_agents = try(each.value.workspace_agents, false)
