@@ -1,5 +1,5 @@
 organization: hashi-demos-apj
-workspace_name: aws-future-app
+workspace_name: aws-future-app-example
 agent_pool_name: AaronPool
 vcs_repo:
   identifier: hashicorp-demo-lab/app-the-future-aws
