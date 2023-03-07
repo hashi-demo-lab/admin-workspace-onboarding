@@ -10,6 +10,7 @@ module "workpace" {
   for_each = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
 
   organization                = try(each.value.organization, "")
+  create_project              = try(each.value.create_project, false)
   project_name                = try(each.value.project_name, "")
   workspace_name              = try(each.value.workspace_name, "")
   workspace_description       = try(each.value.workspace_description, "")
