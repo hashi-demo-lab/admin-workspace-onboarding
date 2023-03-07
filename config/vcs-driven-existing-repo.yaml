@@ -3,10 +3,10 @@ workspace_name: aws-future-app-example
 create_project: true
 project_name: MyProject
 agent_pool_name: AaronPool
+file_triggers_enabled: false
 vcs_repo:
   identifier: hashicorp-demo-lab/app-the-future-aws
   branch: main
-  file_triggers_enabled: false
   tags_regex: ^\d+.\d+.\d+$
   ingress_submodules: null
   oauth_token_id: ot-EEzS6zKkh8tEBC7o

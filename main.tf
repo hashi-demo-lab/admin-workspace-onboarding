@@ -6,6 +6,7 @@ locals {
 }
 
 module "workpace" {
+  ## TO DO - need to tag module and pin version
   source   = "github.com/hashicorp-demo-lab/terraform-tfe-onboarding-module"
   for_each = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
 
@@ -18,19 +19,17 @@ module "workpace" {
   workspace_tags              = try(each.value.workspace_tags, [])
   variables                   = try(each.value.variables, {})
   assessments_enabled         = try(each.value.assessments_enabled, false)
+  
+  file_triggers_enabled   = try(each.value.file_triggers_enabled, true)
+  workspace_vcs_directory = try(each.value.workspace_vcs_directory, "root_directory")
+  workspace_auto_apply    = try(each.value.workspace_auto_apply, false)
 
   # Remote State Sharing
   remote_state           = try(each.value.remote_state, false)
   remote_state_consumers = try(each.value.remote_state_consumers, [""])
 
-  #VCS
+  #VCS block
   vcs_repo                = try(each.value.vcs_repo, {})
-  workspace_vcs_directory = try(each.value.workspace_vcs_directory, "root_directory")
-  branch                  = try(each.value.branch, null)
-  workspace_auto_apply    = try(each.value.workspace_auto_apply, false)
-  tags_regex              = try(each.value.tags_regex, null)
-  file_triggers_enabled   = try(each.value.file_triggers_enabled, false)
-
 
   #Agents
   workspace_agents = try(each.value.workspace_agents, false)
