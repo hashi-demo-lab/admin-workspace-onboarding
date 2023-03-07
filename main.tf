@@ -1,6 +1,5 @@
 
 locals {
-
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
   repositories    = ""
 
