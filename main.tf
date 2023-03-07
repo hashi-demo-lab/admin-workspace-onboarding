@@ -28,7 +28,7 @@ module "workpace" {
   branch                  = try(each.value.branch, null)
   workspace_auto_apply    = try(each.value.workspace_auto_apply, false)
   tags_regex              = try(each.value.tags_regex, null)
-  file_triggers_enabled   = try(each.value.file_triggers_enabled, null)
+  file_triggers_enabled   = try(each.value.file_triggers_enabled, false)
 
 
   #Agents

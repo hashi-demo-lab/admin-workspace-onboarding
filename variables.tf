@@ -54,6 +54,12 @@ variable "tags_regex" {
   type        = string
 }
 
+variable "file_triggers_enabled" {
+  description = "(Optional) -  file_triggers_enabled"
+  default     = true
+  type        = bool
+}
+
 # Variables
 variable "variables" {
   description = "Map of all variables for workspace"
