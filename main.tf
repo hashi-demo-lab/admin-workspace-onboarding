@@ -5,6 +5,22 @@ locals {
 
 }
 
+module "github" {
+  ## TO DO - need to tag module and pin version
+  source   = "github.com/hashicorp-demo-lab/terraform-github-repository-module"
+  #for_each = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
+  github_org = try(each.value.github_org, "hashicorp-demo-lab")
+  github_org_owner = try(each.value.github_org_owner, "hashicorp-demo-lab")
+  github_repo_name = try(each.value.github_repo_name, "")
+  github_repo_desc = try(each.value.github_repo_desc, "")
+  github_repo_visibility = try(each.value.github_repo_visibility, "private")
+  github_team_name = try(each.value.github_team_name, "demo-team")
+  github_template_owner = try(each.value.github_template_owner, "hashicorp-demo-lab")
+  github_repo_permission = try(each.value.github_repo_permission, "admin")
+  github_template_repo = try(each.value.github_template_repo, "terraform-template")
+  github_template_include_branches = try(each.value.github_template_include_branches, false)
+}
+
 module "workpace" {
   ## TO DO - need to tag module and pin version
   source   = "github.com/hashicorp-demo-lab/terraform-tfe-onboarding-module"
