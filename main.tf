@@ -1,34 +1,36 @@
 
 locals {
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
+  workspaces      = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
+  workspaceRepos  = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
 }
 
 module "github" {
   ## TO DO - need to tag module and pin version
   source   = "github.com/hashicorp-demo-lab/terraform-github-repository-module"
-  for_each = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo == true}
+  for_each = local.workspaceRepos
 
-  github_org = try(each.value.github_org, "hashicorp-demo-lab")
-  github_org_owner = try(each.value.github_org_owner, "hashicorp-demo-lab")
-  github_repo_name = try(each.value.github_repo_name, "")
-  github_repo_desc = try(each.value.github_repo_desc, "")
-  github_repo_visibility = try(each.value.github_repo_visibility, "private")
-  github_team_name = try(each.value.github_team_name, "demo-team")
-  github_template_owner = try(each.value.github_template_owner, "hashicorp-demo-lab")
-  github_repo_permission = try(each.value.github_repo_permission, "admin")
-  github_template_repo = try(each.value.github_template_repo, "terraform-template")
-  github_template_include_branches = try(each.value.github_template_include_branches, false)
+  github_org                       = try(each.value.github.github_org, "hashicorp-demo-lab")
+  github_org_owner                 = try(each.value.github.github_org_owner, "hashicorp-demo-lab")
+  github_repo_name                 = try(each.value.github.github_repo_name, "test")
+  github_repo_desc                 = try(each.value.github.github_repo_desc, "")
+  github_repo_visibility           = try(each.value.github.github_repo_visibility, "public")
+  github_team_name                 = try(each.value.github.github.github_team_name, "demo-team")
+  github_template_owner            = try(each.value.github.github_template_owner, "hashicorp-demo-lab")
+  github_repo_permission           = try(each.value.github.github_repo_permission, "admin")
+  github_template_repo             = try(each.value.github.github_template_repo, "terraform-template")
+  github_template_include_branches = try(each.value.github.github_template_include_branches, false)
 }
 
-module "workpace" {
+module "workspace" {
   ## TO DO - need to tag module and pin version
-  source   = "github.com/hashicorp-demo-lab/terraform-tfe-onboarding-module"
+  source = "github.com/hashicorp-demo-lab/terraform-tfe-onboarding-module"
 
   depends_on = [
     module.github
   ]
 
-  for_each = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
+  for_each = local.workspaces
 
   organization                = try(each.value.organization, "")
   create_project              = try(each.value.create_project, false)
@@ -39,7 +41,7 @@ module "workpace" {
   workspace_tags              = try(each.value.workspace_tags, [])
   variables                   = try(each.value.variables, {})
   assessments_enabled         = try(each.value.assessments_enabled, false)
-  
+
   file_triggers_enabled   = try(each.value.file_triggers_enabled, true)
   workspace_vcs_directory = try(each.value.workspace_vcs_directory, "root_directory")
   workspace_auto_apply    = try(each.value.workspace_auto_apply, false)
@@ -49,7 +51,7 @@ module "workpace" {
   remote_state_consumers = try(each.value.remote_state_consumers, [""])
 
   #VCS block
-  vcs_repo                = try(each.value.vcs_repo, {})
+  vcs_repo = try(each.value.vcs_repo, {})
 
   #Agents
   workspace_agents = try(each.value.workspace_agents, false)
@@ -62,8 +64,3 @@ module "workpace" {
   workspace_plan_access_emails  = try(each.value.workspace_plan_access_emails, [])
 
 }
-
-
-
-
-

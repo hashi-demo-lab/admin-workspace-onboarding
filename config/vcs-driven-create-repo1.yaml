@@ -1,6 +1,6 @@
 organization: hashi-demos-apj
-workspace_name: aws-future-app-example
-create_project: true
+workspace_name: vcs-driven-newrepo
+create_project: false
 create_repo: true
 project_name: MyProject
 file_triggers_enabled: false

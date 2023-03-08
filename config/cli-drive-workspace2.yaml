@@ -1,2 +1,4 @@
 organization: hashi-demos-apj
 workspace_name: dev2-cli-workspace
+create_project: false
+create_repo: false

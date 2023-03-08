@@ -1,8 +1,9 @@
 
-output "workspaceConfig" {
-  value = local.workspaceConfig
+output "createRepo" {
+  value = local.workspaceRepos
 }
 
-output "repositories" {
-  value = local.repositories
+
+output "workspaces" {
+  value = local.workspaces
 }

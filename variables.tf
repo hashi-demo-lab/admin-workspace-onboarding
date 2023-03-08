@@ -161,7 +161,6 @@ variable "remote_state_consumers" {
 # }
 
 # GitHub Variables
-## Variables file
 
 variable "github_org" {
   description = "GitHub organization name"
@@ -170,12 +169,13 @@ variable "github_org" {
 
 variable "github_org_owner" {
   description = "GitHub organization owner"
-  default     = "srlynch1"
+  default = "hashicorp-demo-lab"
 }
 
 variable "github_repo_name" {
   description = "The name of the new repository"
   type        = string
+  default     = ""
 }
 
 variable "github_repo_desc" {
