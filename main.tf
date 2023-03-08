@@ -1,14 +1,13 @@
 
 locals {
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
-  repositories    = ""
-
 }
 
 module "github" {
   ## TO DO - need to tag module and pin version
   source   = "github.com/hashicorp-demo-lab/terraform-github-repository-module"
-  #for_each = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
+  for_each = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo == true}
+
   github_org = try(each.value.github_org, "hashicorp-demo-lab")
   github_org_owner = try(each.value.github_org_owner, "hashicorp-demo-lab")
   github_repo_name = try(each.value.github_repo_name, "")
@@ -24,6 +23,11 @@ module "github" {
 module "workpace" {
   ## TO DO - need to tag module and pin version
   source   = "github.com/hashicorp-demo-lab/terraform-tfe-onboarding-module"
+
+  depends_on = [
+    module.github
+  ]
+
   for_each = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
 
   organization                = try(each.value.organization, "")
