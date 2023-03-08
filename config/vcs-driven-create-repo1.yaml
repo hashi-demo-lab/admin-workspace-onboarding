@@ -16,7 +16,7 @@ github:
   github_template_repo: "terraform-template"
   github_template_include_branches: false
 vcs_repo:
-  identifier: hashicorp-demo-lab/Test3
+  identifier: hashicorp-demo-lab/Test3-createrepo
   branch: main
   tags_regex: ^\d+.\d+.\d+$
   ingress_submodules: null
