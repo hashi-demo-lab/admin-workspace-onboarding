@@ -10,11 +10,11 @@ module "github" {
   source   = "github.com/hashicorp-demo-lab/terraform-github-repository-module"
   for_each = local.workspaceRepos
 
-  github_org                       = try(each.value.github.github_org, "hashicorp-demo-lab")
-  github_org_owner                 = try(each.value.github.github_org_owner, "hashicorp-demo-lab")
-  github_repo_name                 = try(each.value.github.github_repo_name, "test")
+  github_org                       = try(each.value.github.github_org, "")
+  github_org_owner                 = try(each.value.github.github_org_owner, "")
+  github_repo_name                 = try(each.value.github.github_repo_name, "")
   github_repo_desc                 = try(each.value.github.github_repo_desc, "")
-  github_repo_visibility           = try(each.value.github.github_repo_visibility, "public")
+  github_repo_visibility           = try(each.value.github.github_repo_visibility, "private")
   github_team_name                 = try(each.value.github.github.github_team_name, "demo-team")
   github_template_owner            = try(each.value.github.github_template_owner, "hashicorp-demo-lab")
   github_repo_permission           = try(each.value.github.github_repo_permission, "admin")

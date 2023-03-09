@@ -1,4 +1,5 @@
 organization: hashi-demos-apj
 workspace_name: dev2-cli-workspace
 create_project: false
+project_name: Simons Project
 create_repo: false

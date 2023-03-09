@@ -1,9 +1,8 @@
 organization: hashi-demos-apj
-workspace_name: aws-future-app-example
-create_project: false
+workspace_name: aws-future-app-profject
+create_project: true
 create_repo: false
-project_name: MyProject
-agent_pool_name: AaronPool
+project_name: DemoProject1
 file_triggers_enabled: false
 vcs_repo:
   identifier: hashicorp-demo-lab/app-the-future-aws
