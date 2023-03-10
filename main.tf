@@ -2,7 +2,8 @@
 locals {
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
   workspaces      = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
-  workspaceRepos  = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
+  workspaceRepos  = [for k,v in local.workspaces : k if v.create_repo]
+  #workspaceRepos  = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
 }
 
 module "github" {
