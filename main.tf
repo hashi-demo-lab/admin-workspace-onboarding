@@ -2,9 +2,34 @@
 locals {
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
   workspaces      = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
-  workspaceRepos  = [for k,v in local.workspaces : k if v.create_repo]
-  #workspaceRepos  = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
+  workspaceRepos  = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
+  ws_varSets      = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_variable_set }
+
+  testKeys  = keys(local.ws_varSets)
+  testValue = values(local.ws_varSets)
+
+  workspace_varset = flatten([
+    for key, value in local.ws_varSets : [
+      {
+        workspace_name = value["workspace_name"]
+        var_sets       = keys(value["var_sets"])
+      }
+    ]
+  ])
 }
+
+/* module "terraform-tfe-variable-sets" {
+  source   = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets"
+  for_each = local.ws_varSets
+
+  organization             = try(each.value.organization, "")
+  create_variable_set      = try(each.value.create_variable_set, true)
+  variables                = try(each.value.var_sets.variables, {})
+  variable_set_name        = try(each.value.var_sets.variable_set_name, "")
+  variable_set_description = try(each.value.var_sets.variable_set_description, "")
+  tags                     = try(each.value.var_sets.tags, [])
+  global                   = try(each.value.var_sets.global, false)
+}   */
 
 module "github" {
   ## TO DO - need to tag module and pin version
