@@ -169,7 +169,7 @@ variable "github_org" {
 
 variable "github_org_owner" {
   description = "GitHub organization owner"
-  default = "hashicorp-demo-lab"
+  default     = "hashicorp-demo-lab"
 }
 
 variable "github_repo_name" {

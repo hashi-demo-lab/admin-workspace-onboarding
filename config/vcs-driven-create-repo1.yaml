@@ -4,6 +4,7 @@ create_project: false
 create_repo: true
 project_name: MyProject
 file_triggers_enabled: false
+create_variable_set: false
 github:
   github_org: "hashicorp-demo-lab"
   github_org_owner: "hashicorp-demo-lab"

@@ -3,3 +3,4 @@ workspace_name: dev2-cli-workspace
 create_project: false
 project_name: Simons Project
 create_repo: false
+create_variable_set: false

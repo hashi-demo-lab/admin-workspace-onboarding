@@ -1,9 +1,4 @@
 
-output "createRepo" {
-  value = local.workspaceRepos
-}
-
-
-output "workspaces" {
-  value = local.workspaces
-}
+output "varsetMap" {
+  value = local.varsetMap
+}  

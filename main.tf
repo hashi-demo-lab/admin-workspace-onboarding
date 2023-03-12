@@ -1,44 +1,54 @@
 
 locals {
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
-  workspaces      = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
-  workspaceRepos  = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
-  ws_varSets      = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_variable_set }
 
-  testKeys  = keys(local.ws_varSets)
-  testValue = values(local.ws_varSets)
+  workspaces = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
+  #filter workspaces to only those that need a new github repo created
+  workspaceRepos = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
+  #filter workspace to only those with variables sets
+  ws_varSets = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_variable_set }
 
+  #loop though each workspace, then each varset and flatten
   workspace_varset = flatten([
     for key, value in local.ws_varSets : [
+      for varset in value["var_sets"] :
       {
-        workspace_name = value["workspace_name"]
-        var_sets       = keys(value["var_sets"])
+        organization        = value["organization"]
+        workspace_name      = value["workspace_name"]
+        create_variable_set = value["create_variable_set"]
+        var_sets            = varset
       }
     ]
   ])
+
+  #convert to Map with varset name as key
+  varsetMap = { for varset in local.workspace_varset : varset.var_sets.variable_set_name => varset }
 }
 
-/* module "terraform-tfe-variable-sets" {
-  source   = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets"
-  for_each = local.ws_varSets
 
-  organization             = try(each.value.organization, "")
+
+module "terraform-tfe-variable-sets" {
+  source   = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets"
+  for_each = local.varsetMap
+
+  organization             = each.value.organization
   create_variable_set      = try(each.value.create_variable_set, true)
   variables                = try(each.value.var_sets.variables, {})
   variable_set_name        = try(each.value.var_sets.variable_set_name, "")
   variable_set_description = try(each.value.var_sets.variable_set_description, "")
   tags                     = try(each.value.var_sets.tags, [])
   global                   = try(each.value.var_sets.global, false)
-}   */
+}
+
 
 module "github" {
   ## TO DO - need to tag module and pin version
   source   = "github.com/hashicorp-demo-lab/terraform-github-repository-module"
   for_each = local.workspaceRepos
 
-  github_org                       = try(each.value.github.github_org, "")
-  github_org_owner                 = try(each.value.github.github_org_owner, "")
-  github_repo_name                 = try(each.value.github.github_repo_name, "")
+  github_org                       = each.value.github.github_org
+  github_org_owner                 = each.value.github.github_org_owner
+  github_repo_name                 = each.value.github.github_repo_name
   github_repo_desc                 = try(each.value.github.github_repo_desc, "")
   github_repo_visibility           = try(each.value.github.github_repo_visibility, "private")
   github_team_name                 = try(each.value.github.github.github_team_name, "demo-team")
@@ -58,10 +68,10 @@ module "workspace" {
 
   for_each = local.workspaces
 
-  organization                = try(each.value.organization, "")
+  organization                = each.value.organization
   create_project              = try(each.value.create_project, false)
   project_name                = try(each.value.project_name, "")
-  workspace_name              = try(each.value.workspace_name, "")
+  workspace_name              = each.value.workspace_name
   workspace_description       = try(each.value.workspace_description, "")
   workspace_terraform_version = try(each.value.workspace_terraform_version, "")
   workspace_tags              = try(each.value.workspace_tags, [])
@@ -90,3 +100,4 @@ module "workspace" {
   workspace_plan_access_emails  = try(each.value.workspace_plan_access_emails, [])
 
 }
+
