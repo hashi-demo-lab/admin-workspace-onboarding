@@ -1,13 +1,11 @@
 
 locals {
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
-
   workspaces = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
   #filter workspaces to only those that need a new github repo created
   workspaceRepos = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
   #filter workspace to only those with variables sets
   ws_varSets = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_variable_set }
-
   #loop though each workspace, then each varset and flatten
   workspace_varset = flatten([
     for key, value in local.ws_varSets : [
@@ -20,12 +18,9 @@ locals {
       }
     ]
   ])
-
   #convert to Map with varset name as key
   varsetMap = { for varset in local.workspace_varset : varset.var_sets.variable_set_name => varset }
 }
-
-
 
 module "terraform-tfe-variable-sets" {
   source   = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets?ref=v0.2.0"
@@ -42,8 +37,7 @@ module "terraform-tfe-variable-sets" {
 
 
 module "github" {
-  ## TO DO - need to tag module and pin version
-  source   = "github.com/hashicorp-demo-lab/terraform-github-repository-module"
+  source   = "github.com/hashicorp-demo-lab/terraform-github-repository-module?ref=v0.2.0"
   for_each = local.workspaceRepos
 
   github_org                       = each.value.github.github_org
@@ -51,7 +45,7 @@ module "github" {
   github_repo_name                 = each.value.github.github_repo_name
   github_repo_desc                 = try(each.value.github.github_repo_desc, "")
   github_repo_visibility           = try(each.value.github.github_repo_visibility, "private")
-  github_team_name                 = try(each.value.github.github.github_team_name, "demo-team")
+  github_team_name                 = try(each.value.github.github.github_team_name, "")
   github_template_owner            = try(each.value.github.github_template_owner, "hashicorp-demo-lab")
   github_repo_permission           = try(each.value.github.github_repo_permission, "admin")
   github_template_repo             = try(each.value.github.github_template_repo, "terraform-template")
@@ -59,8 +53,7 @@ module "github" {
 }
 
 module "workspace" {
-  ## TO DO - need to tag module and pin version
-  source = "github.com/hashicorp-demo-lab/terraform-tfe-onboarding-module"
+  source = "github.com/hashicorp-demo-lab/terraform-tfe-onboarding-module?ref=v0.2.0"
 
   depends_on = [
     module.github
