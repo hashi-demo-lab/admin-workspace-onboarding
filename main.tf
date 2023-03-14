@@ -2,10 +2,13 @@
 locals {
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
   workspaces = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
+
   #filter workspaces to only those that need a new github repo created
   workspaceRepos = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
+
   #filter workspace to only those with variables sets
   ws_varSets = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_variable_set }
+
   #loop though each workspace, then each varset and flatten
   workspace_varset = flatten([
     for key, value in local.ws_varSets : [
@@ -18,7 +21,7 @@ locals {
       }
     ]
   ])
-  #convert to Map with varset name as key
+  #convert to a Map with variabel set name as key
   varsetMap = { for varset in local.workspace_varset : varset.var_sets.variable_set_name => varset }
 }
 
@@ -29,7 +32,7 @@ module "terraform-tfe-variable-sets" {
   organization             = each.value.organization
   create_variable_set      = try(each.value.create_variable_set, true)
   variables                = try(each.value.var_sets.variables, {})
-  variable_set_name        = try(each.value.var_sets.variable_set_name, "")
+  variable_set_name        = each.value.var_sets.variable_set_name
   variable_set_description = try(each.value.var_sets.variable_set_description, "")
   tags                     = try(each.value.var_sets.tags, [])
   global                   = try(each.value.var_sets.global, false)
