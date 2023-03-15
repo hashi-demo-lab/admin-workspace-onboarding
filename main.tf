@@ -26,7 +26,7 @@ locals {
 }
 
 module "terraform-tfe-variable-sets" {
-  source   = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets?ref=v0.3.5"
+  source   = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets?ref=v0.3.6"
   
   depends_on = [
     module.workspace
