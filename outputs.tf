@@ -6,5 +6,5 @@ output "varsetMap" {
 
 
 output "varsetworkspaceMap" {
-  value = module.terraform-tfe-variable-sets.workspaces
+  value = module.terraform-tfe-variable-sets
 }  
