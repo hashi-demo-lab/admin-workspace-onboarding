@@ -1,7 +1,7 @@
 
 locals {
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
-  workspaces = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
+  workspaces      = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
 
   #filter workspaces to only those that need a new github repo created
   workspaceRepos = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
@@ -26,12 +26,8 @@ locals {
 }
 
 module "terraform-tfe-variable-sets" {
-  source   = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets?ref=v0.3.6"
-  
-  depends_on = [
-    module.workspace
-  ]
-  
+  source = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets?ref=v0.3.6"
+
   for_each = local.varsetMap
 
   organization             = each.value.organization
@@ -64,7 +60,8 @@ module "workspace" {
   source = "github.com/hashicorp-demo-lab/terraform-tfe-onboarding-module?ref=v0.2.0"
 
   depends_on = [
-    module.github
+    module.github,
+    terraform-tfe-variable-sets
   ]
 
   for_each = local.workspaces
@@ -100,5 +97,15 @@ module "workspace" {
   workspace_write_access_emails = try(each.value.workspace_write_access_emails, [])
   workspace_plan_access_emails  = try(each.value.workspace_plan_access_emails, [])
 
+}
+
+
+resource "tfe_workspace_variable_set" "set" {
+  depends_on = [
+    module.workspace
+  ]
+  for_each        = local.varsetMap
+  variable_set_id = each.value.variable_set_name
+  workspace_id    = each.workspace_name
 }
 
