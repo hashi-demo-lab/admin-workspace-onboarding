@@ -1,10 +1,8 @@
 
 output "varsetMap" {
   value = local.varsetMap
-}  
+}
 
-
-
-output "varsetworkspaceMap" {
+output "variable_set" {
   value = module.terraform-tfe-variable-sets
 }  

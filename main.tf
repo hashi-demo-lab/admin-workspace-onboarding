@@ -2,10 +2,8 @@
 locals {
   workspaceConfig = flatten([for workspace in fileset(path.module, "config/*.yaml") : yamldecode(file(workspace))])
   workspaces      = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace }
-
   #filter workspaces to only those that need a new github repo created
   workspaceRepos = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_repo }
-
   #filter workspace to only those with variables sets
   ws_varSets = { for workspace in local.workspaceConfig : workspace.workspace_name => workspace if workspace.create_variable_set }
 
@@ -26,7 +24,7 @@ locals {
 }
 
 module "terraform-tfe-variable-sets" {
-  source = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets?ref=v0.3.6"
+  source = "github.com/hashicorp-demo-lab/terraform-tfe-variable-sets?ref=v0.3.7"
 
   for_each = local.varsetMap
 
@@ -60,8 +58,7 @@ module "workspace" {
   source = "github.com/hashicorp-demo-lab/terraform-tfe-onboarding-module?ref=v0.2.0"
 
   depends_on = [
-    module.github,
-    terraform-tfe-variable-sets
+    module.github
   ]
 
   for_each = local.workspaces
@@ -96,16 +93,31 @@ module "workspace" {
   workspace_read_access_emails  = try(each.value.workspace_read_access_emails, [])
   workspace_write_access_emails = try(each.value.workspace_write_access_emails, [])
   workspace_plan_access_emails  = try(each.value.workspace_plan_access_emails, [])
-
 }
 
 
-resource "tfe_workspace_variable_set" "set" {
+data "tfe_workspace_ids" "all" {
   depends_on = [
     module.workspace
   ]
-  for_each        = local.varsetMap
-  variable_set_id = each.value.variable_set_name
-  workspace_id    = each.workspace_name
+  names        = ["*"]
+  organization = var.organization
 }
+
+locals {
+  varset_out = module.terraform-tfe-variable-sets
+}
+
+
+# Associate varset with workspace
+resource "tfe_workspace_variable_set" "set" {
+  depends_on = [
+    module.workspace,
+    module.terraform-tfe-variable-sets
+  ]
+  for_each        = local.varsetMap
+  variable_set_id = local.varset_out[each.value.var_sets.variable_set_name].variable_set[0].id
+  workspace_id    = lookup(data.tfe_workspace_ids.all.ids, each.value.workspace_name)
+
+} 
 
